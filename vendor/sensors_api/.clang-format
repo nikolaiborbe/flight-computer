@@ -1,0 +1,49 @@
+BasedOnStyle: WebKit
+IndentWidth: 4
+UseTab: Never
+ColumnLimit: 100
+
+# When args don't fit on one line, break after '(' and indent as a block.
+# Closing ')' goes on its own line. Much cleaner than DontAlign (WebKit default).
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: true
+BinPackParameters: true
+
+# Alignment
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false
+AlignOperands: Align
+AlignTrailingComments: true
+
+# Short forms
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortLambdasOnASingleLine: Inline
+
+# Braces / init lists
+Cpp11BracedListStyle: true
+
+# Pointer/reference with the type
+PointerAlignment: Left
+
+# Namespaces
+NamespaceIndentation: None
+FixNamespaceComments: true
+
+# Don't indent inside extern "C" blocks
+IndentExternBlock: NoIndent
+
+# Includes
+SortIncludes: true
+IncludeBlocks: Merge
+IncludeCategories:
+  - Regex: '^".*"$'
+    Priority: 1
+  - Regex: '^<.*\.h>$'
+    Priority: 2
+  - Regex: '^<.*>$'
+    Priority: 3

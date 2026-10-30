@@ -1,0 +1,92 @@
+# --- OS noise
+.DS_Store
+Thumbs.db
+
+.mypy_cache/
+.vscode
+
+.venv
+venv/
+.idea/
+.settings/
+
+# --- Editors
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# VS Code: keep portable project files if you use them
+.vscode/*
+.vscode
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# --- CMake builds
+/build*/
+**/build*/
+build
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+_testing/
+_testing*/
+
+# --- STM32CubeIDE / Eclipse metadata (safe to ignore if not sharing IDE configs)
+.project
+.cproject
+.settings/
+.stm32cubeide/
+.loadpath
+.loadLauncher
+.mxproject
+
+# --- Other vendor IDEs (occasionally appear)
+*.uvproj
+*.uvprojx
+*.uvopt
+*.uvoptx
+*.eww
+*.ewp
+*.ewd
+*.ewt
+
+# --- Toolchain outputs
+*.o
+*.obj
+*.d
+*.su
+*.lst
+*.map
+*.elf
+*.axf
+*.hex
+*.bin
+*.s19
+*.out
+*.ld.linked
+
+# --- GDB and debug leftovers
+.gdb_history
+*.svd
+*.trace
+*.log
+
+# --- Generated cache from code generators
+/.cache/
+**/.cache/
+
+# --- Python or misc helpers (if you script)
+__pycache__/
+*.pyc
+.env
+.venv/
+
+# precompiled build artifacts (too large for git)
+.lib/

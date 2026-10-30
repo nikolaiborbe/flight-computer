@@ -1,0 +1,21 @@
+[submodule "vendor/actuators-api"]
+	path = vendor/actuators-api
+	url = https://gitlab.com/propulse-ntnu/avionics-software/2026/shared/actuators-api.git
+[submodule "vendor/common"]
+	path = vendor/common
+	url = https://gitlab.com/propulse-ntnu/avionics-software/2026/shared/common.git
+[submodule "vendor/sensors_api"]
+	path = vendor/sensors_api
+	url = https://gitlab.com/propulse-ntnu/avionics-software/2026/shared/sensors_api.git
+[submodule "vendor/doxygen"]
+	path = vendor/doxygen
+	url = https://gitlab.com/propulse-ntnu/avionics-software/2026/shared/doxygen.git
+[submodule "vendor/p-can"]
+	path = vendor/p-can
+	url = https://gitlab.com/propulse-ntnu/avionics-software/2026/shared/p-can.git
+[submodule "vendor/logger_api"]
+	path = vendor/logger_api
+	url = https://gitlab.com/propulse-ntnu/avionics-software/2026/shared/logger_api.git
+[submodule "vendor/configs"]
+	path = vendor/configs
+	url = git@gitlab.com:propulse-ntnu/avionics-software/2026/recovery/configs.git

@@ -1,0 +1,47 @@
+stages: [docs, deploy]
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+.dox-tools:
+  image: debian:stable-slim
+  before_script:
+    - apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends doxygen graphviz git
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+
+variables:
+  DOXYFILE_PATH: "docs/Doxyfile"
+  HTML_OUT: "docs/html"
+  PAGES_OUT: "public"
+
+docs:generate:
+  stage: docs
+  extends: .dox-tools
+  script:
+    - test -f "$DOXYFILE_PATH" || { echo "Missing $DOXYFILE_PATH"; exit 1; }
+    - doxygen "$DOXYFILE_PATH"
+    - mkdir -p "$PAGES_OUT" && cp -a "$HTML_OUT"/* "$PAGES_OUT"/
+  artifacts:
+    paths: ["$PAGES_OUT"]
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+pages:
+  stage: deploy
+  needs: ["docs:generate"]
+  script: ['echo "Publishing Pages"']
+  artifacts:
+    paths: ["$PAGES_OUT"]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG

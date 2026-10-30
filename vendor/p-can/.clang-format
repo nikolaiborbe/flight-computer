@@ -1,0 +1,19 @@
+# BasedOnStyle: LLVM
+IndentWidth: 4
+UseTab: Never
+ColumnLimit: 100
+AlignConsecutiveAssignments: true
+AlignTrailingComments: true
+AlignConsecutiveMacros: true
+AllowShortCaseLabelsOnASingleLine: true
+FixNamespaceComments: true
+
+SortIncludes: true
+IncludeBlocks: Merge
+IncludeCategories:
+  - Regex: '^".*"$'
+    Priority: 1
+  - Regex: '^<.*\.h>$'
+    Priority: 2
+  - Regex: '^<.*>$'
+    Priority: 3

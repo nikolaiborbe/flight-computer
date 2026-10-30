@@ -1,0 +1,6 @@
+missingIncludeSystem
+
+*:*/Middlewares/*
+*:*/Drivers/CMSIS/*
+
+*:*/Core/(Src|Inc)/drivers/kalmanfilter/*

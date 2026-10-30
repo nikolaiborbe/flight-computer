@@ -1,0 +1,52 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 22,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "base-config",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/gcc-arm-none-eabi.cmake"
+            }
+        },
+        {
+            "name": "debug-no-precompile",
+            "description": "Fast build using the existing locked-down precompiled library.",
+            "displayName": "Debug (No Precompile)",
+            "inherits": "base-config",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug-without-precompile"
+            }
+        },
+        {
+            "name": "debug-precompiled",
+            "description": "Builds the project and compiles the HAL/Middleware into a fresh static library.",
+            "displayName": "Debug (With Precompile) EXPERIMENTAL",
+            "inherits": "base-config",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug-with-precompile"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "debug-no-precompile-preset",
+            "displayName": "Debug (No Precompile)",
+            "configurePreset": "debug-no-precompile",
+            "jobs": 0
+        },
+        {
+            "name": "debug-precompiled-preset",
+            "displayName": "Debug (With Precompile) EXPERIMENTAL",
+            "configurePreset": "debug-precompiled",
+            "jobs": 0 
+        }
+    ]
+}

@@ -1,0 +1,195 @@
+variables:
+  DATA_OBJECT_REPO_URL: "https://oauth2:${GITLAB_PERSONAL_ACCESS_TOKEN}@gitlab.com/propulse-ntnu/avionics-software/2026/shared/data-objects.git"
+  OUTPUT_BRANCH: "prod"
+  GIT_SUBMODULE_STRATEGY: none
+  GIT_SUBMODULE_FORCE_HTTPS: "true"
+
+stages:
+  # - format
+  # - cppcheck
+  - generate
+  - build
+
+# clang-format:
+#   stage: format
+#   tags: ["rainbowdash"]
+#   script:
+#     - |
+#       # Only Core/(Src|Inc)/(drivers|tasks), excluding kalmanfilter
+#       mapfile -t FILES < <(
+#         git ls-files |
+#           grep -E '^Core/(Src|Inc)/(drivers|tasks)/' |
+#           grep -Ev '^Core/(Src|Inc)/drivers/kalmanfilter/' |
+#           grep -E '\.(c|cc|cpp|cxx|h|hh|hpp|hxx)$' \
+#           || true
+#       )
+
+#       if [ ${#FILES[@]} -eq 0 ]; then
+#         echo "No matching C/C++ files found under Core/(Src|Inc)/(drivers|tasks)."
+#         exit 0
+#       fi
+
+#       echo "Checking ${#FILES[@]} files with clang-format..."
+#       clang-format --version
+#       clang-format --dry-run --Werror "${FILES[@]}"
+#   allow_failure: true
+
+# cppcheck-misra:
+#   stage: cppcheck
+#   tags: ["rainbowdash"]
+#   variables:
+#     STATIC_BUILD_DIR: build/Static
+#     TOOLCHAIN_FILE: cmake/gcc-arm-none-eabi.cmake
+#   script:
+#     # 1) Generate compile_commands.json
+#     - |
+#       # Only Core/(Src|Inc)/(drivers|tasks), excluding kalmanfilter
+#       mapfile -t FILES < <(
+#         git ls-files |
+#           grep -E '^Core/(Src|Inc)/(drivers|tasks)/' |
+#           grep -Ev '^Core/(Src|Inc)/drivers/kalmanfilter/' |
+#           grep -E '\.(c|cc|cpp|cxx|h|hh|hpp|hxx)$' \
+#           || true
+#       )
+
+#     # 4) Run cppcheck (fails job on violations)
+#     - |
+#       echo "Running cppcheck MISRA…"
+#       cppcheck \
+#         --suppressions-list=.cppcheck-suppress \
+#         --enable=warning,style,performance,portability,information \
+#         --inline-suppr \
+#         --suppress=unmatchedSuppression \
+#         --force \
+#         --error-exitcode=1 \
+#         --addon=/usr/lib/x86_64-linux-gnu/cppcheck/addons/misra.py \
+#         --xml --xml-version=2 ${FILES[@]} 2> cppcheck-misra.xml
+#   artifacts:
+#     when: always
+#     paths:
+#       - cppcheck-misra.xml
+#       - build/Static/compile_commands.json
+#       - build/Static/compile_commands.drivers_tasks.json
+#     expire_in: 1 week
+#   allow_failure: true
+
+generate:
+  stage: generate
+  image: ubuntu:24.04
+  # tags:
+  #   - rainbowdash
+  only:
+    - main
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends git python3 python3-pip curl gnupg
+    - echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" > /etc/apt/sources.list.d/llvm.list
+    - curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/llvm.gpg
+    - apt-get update -qq
+    - apt-get install -y --no-install-recommends clang-21 libclang-21-dev
+    - pip3 install --break-system-packages clang==21.1.7
+    - python3 -c "import clang.cindex; print('cindex OK')"
+    - test -n "${GITLAB_PERSONAL_ACCESS_TOKEN}" || { echo "GITLAB_PERSONAL_ACCESS_TOKEN is not available to this pipeline. Check that the CI/CD variable is configured for this branch/tag and is not protected when running on an unprotected branch."; exit 1; }
+    - git config --global url."https://oauth2:${GITLAB_PERSONAL_ACCESS_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
+    - git config --global url."https://oauth2:${GITLAB_PERSONAL_ACCESS_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+    - git config --global user.email "ci@gitlab.com"
+    - git config --global user.name "GitLab CI"
+  script:
+    - mkdir -p .fricc-include
+    - |
+      cat > .fricc-include/borbes_shorthands.h <<'EOF'
+      #pragma once
+      #include <stdint.h>
+      typedef uint8_t u8;
+      typedef uint16_t u16;
+      typedef uint32_t u32;
+      typedef uint64_t u64;
+      typedef int8_t s8;
+      typedef int16_t s16;
+      typedef int32_t s32;
+      typedef int64_t s64;
+      typedef unsigned long ULONG;
+      EOF
+    - |
+      cat > .fricc-include/ICM40609D.h <<'EOF'
+      #pragma once
+      EOF
+    - |
+      cat > .fricc-include/MMC5983MA.h <<'EOF'
+      #pragma once
+      #include "borbes_shorthands.h"
+      struct Mmc5983maVectorRaw {
+          u32 x;
+          u32 y;
+          u32 z;
+      };
+      struct Mmc5983maVector {
+          float x;
+          float y;
+          float z;
+      };
+      struct Mmc5983maData {
+          bool valid;
+          Mmc5983maVector magnetic_gauss;
+          Mmc5983maVectorRaw raw;
+          float temperature_c;
+          u32 timestamp_ms;
+      };
+      EOF
+    - git clone "${DATA_OBJECT_REPO_URL}" data-objects
+    - cd data-objects
+    - git checkout "${OUTPUT_BRANCH}"
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Data" -f ts-typed-binary -o ./fossekall-interface/src/generated/fc/telemetry.ts ../App/Inc/Data/GroundStation.hpp -m "@telemetry" -l /usr/lib/llvm-21/lib/
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Data" -f json-simple -o ./fossekall-interface/src/generated/fc/telemetry.json ../App/Inc/Data/GroundStation.hpp -m "@telemetry" -l /usr/lib/llvm-21/lib/
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Data" -f lua-wireshark -o ./fossekall-interface/src/generated/fc/telemetry.lua ../App/Inc/Data/GroundStation.hpp -m "@telemetry" -l /usr/lib/llvm-21/lib/
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Data" -f json-simple -o ./fossekall-interface/src/generated/fc/kalman.json ../App/Inc/Data/GroundStation.hpp -m "#port=3002" -l /usr/lib/llvm-21/lib/
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Data" -f lua-wireshark -o ./fossekall-interface/src/generated/fc/kalman.lua ../App/Inc/Data/GroundStation.hpp -m "#port=3002" -l /usr/lib/llvm-21/lib/
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Networking" -f ts-typed-binary -o ./fossekall-interface/src/generated/fc/commands.ts ../App/Inc/Networking/command_objects.hpp -l /usr/lib/llvm-21/lib/
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Networking" -f json-simple -o ./fossekall-interface/src/generated/fc/commands.json ../App/Inc/Networking/command_objects.hpp -l /usr/lib/llvm-21/lib/
+    - python3 -m fricc.fricc -a "-std=c++23 -I../.fricc-include -I../App/Inc/Networking" -f lua-wireshark -o ./fossekall-interface/src/generated/fc/commands.lua ../App/Inc/Networking/command_objects.hpp -l /usr/lib/llvm-21/lib/
+    - git add -A
+    - git diff --cached
+    - |
+      if git diff --cached --quiet; then
+        echo "No changes generated, skipping push."
+      else
+        git commit -m "ci: generated output from pipeline #${CI_PIPELINE_IID}"
+        git push origin "${OUTPUT_BRANCH}"
+        echo "Pushed to branch: ${OUTPUT_BRANCH}"
+      fi
+    - mkdir -p ../friccer_output
+    - cp ./fossekall-interface/src/generated/fc/* ../friccer_output/
+  artifacts:
+    paths:
+      - friccer_output/
+
+stm32-build:
+  stage: build
+  tags: ["rainbowdash"]
+  when: manual
+  allow_failure: true
+  variables:
+    BUILD_DIR: build/Debug
+    CMAKE_BUILD_TYPE: Debug-without-precompile
+    TOOLCHAIN_FILE: cmake/gcc-arm-none-eabi.cmake
+    TARGET_NAME: flight-computer
+  before_script:
+    - test -n "${GITLAB_PERSONAL_ACCESS_TOKEN}" || { echo "GITLAB_PERSONAL_ACCESS_TOKEN is not available to this pipeline. Check that the CI/CD variable is configured for this branch/tag and is not protected when running on an unprotected branch."; exit 1; }
+    - git config --global url."https://oauth2:${GITLAB_PERSONAL_ACCESS_TOKEN}@gitlab.com/".insteadOf "https://gitlab.com/"
+    - git config --global url."https://oauth2:${GITLAB_PERSONAL_ACCESS_TOKEN}@gitlab.com/".insteadOf "git@gitlab.com:"
+  script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - cmake -S . -B "$BUILD_DIR" -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_FILE"
+    - cmake --build "$BUILD_DIR" --target "$TARGET_NAME" -- -j$(nproc)
+  artifacts:
+    paths:
+      - build/Debug/**/*.elf
+      - build/Debug/**/*.map
+      - build/Debug/**/*.bin
+      - build/Debug/**/*.hex
+      - build/Debug/CMakeCache.txt
+      - build/Debug/**/*.log
+    expire_in: 1 week
+    
+

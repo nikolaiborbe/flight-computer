@@ -1,0 +1,4 @@
+If:
+  PathMatch: .*\.hpp$
+CompileFlags:
+  Add: [-std=gnu++20]

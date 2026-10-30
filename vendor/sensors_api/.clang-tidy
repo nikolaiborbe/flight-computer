@@ -1,0 +1,32 @@
+Checks: >
+  -*,
+  readability-identifier-naming
+
+CheckOptions:
+  # classes/structs -> UpperCamelCase
+  - { key: readability-identifier-naming.ClassCase,            value: CamelCase }
+  - { key: readability-identifier-naming.StructCase,           value: CamelCase }
+
+  # enums -> BIG_LETTERS (type name and constants)
+  - { key: readability-identifier-naming.EnumCase,             value: UPPER_CASE }
+  - { key: readability-identifier-naming.EnumConstantCase,     value: UPPER_CASE }
+
+  # functions -> snake_case
+  - { key: readability-identifier-naming.FunctionCase,         value: lower_case }
+  - { key: readability-identifier-naming.ClassMethodCase,      value: lower_case }
+  - { key: readability-identifier-naming.GlobalFunctionCase,   value: lower_case }
+
+  # variables -> snake_case
+  - { key: readability-identifier-naming.VariableCase,         value: lower_case }
+  - { key: readability-identifier-naming.LocalVariableCase,    value: lower_case }
+  - { key: readability-identifier-naming.GlobalVariableCase,   value: lower_case }
+  - { key: readability-identifier-naming.ParameterCase,        value: lower_case }
+  - { key: readability-identifier-naming.ClassMemberCase,      value: lower_case }
+  - { key: readability-identifier-naming.PrivateMemberCase,    value: lower_case }
+  - { key: readability-identifier-naming.ProtectedMemberCase,  value: lower_case }
+  - { key: readability-identifier-naming.PublicMemberCase,     value: lower_case }
+
+  # optional: let macros and literals be anything
+  - { key: readability-identifier-naming.MacroDefinitionCase,  value: aNy_CasE }
+  - { key: readability-identifier-naming.EnumConstantPrefix,   value: "" }
+  - { key: readability-identifier-naming.AllowedFunctionNames, value: "^main$" }

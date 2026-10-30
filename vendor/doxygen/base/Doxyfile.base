@@ -1,0 +1,29 @@
+# Outputs
+OUTPUT_DIRECTORY       = docs
+HTML_OUTPUT            = html
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+RECURSIVE              = YES
+GENERATE_TREEVIEW      = YES
+SEARCHENGINE           = YES
+HAVE_DOT               = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+
+PROJECT_NAME           = Project Title
+PROJECT_BRIEF          = Project Brief
+PROJECT_LOGO           = ../logo_blue.png
+HTML_FAVICON           = ../favicon.ico
+
+HTML_EXTRA_STYLESHEET  = ../vendor/doxygen-awesome-css/doxygen-awesome.css \
+                         ../vendor/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
+                         ../vendor/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.css \
+                         ../extras.css
+HTML_EXTRA_FILES       = ../vendor/doxygen-awesome-css/doxygen-awesome-darkmode-toggle.js \
+                         ../favicon.ico
+
+# Optional footer that injects the toggle button
+HTML_FOOTER            = ../footer.html
+
+FILE_PATTERNS          = *.c *.h *.hpp *.cpp *.md
+EXCLUDE_PATTERNS       = */build/* */cmake/* */Drivers/* */Middlewares/*

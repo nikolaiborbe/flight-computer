@@ -1,0 +1,76 @@
+#ifndef __FC_IDS_H__
+#define __FC_IDS_H__
+
+#include "pcan_core.h"
+
+// FC Categories
+#define FC_MASTER   (0)
+#define FC_SERVO    (1)
+#define FC_SOLENOID (2)
+#define FC_PRESSURE (3)
+#define FC_BATTERY  (4)
+#define FC_GNSS     (5)
+#define FC_CAMERA   (6)
+#define FC_THERMOCOUPLE      (7)
+
+// Master nodes
+#define FC_MASTER_NODE PCAN_NODE_ID(FC_MASTER, 0)
+
+// Master endpoints
+// (none)
+
+// GNSS node
+#define FC_GNSS_NODE PCAN_NODE_ID(FC_GNSS, 0)
+
+// GNSS endpoints
+#define FC_NEO_ENDPOINT PCAN_ENDPOINT_ID(FC_GNSS_NODE, 0)
+#define FC_BME280_ENDPOINT PCAN_ENDPOINT_ID(FC_GNSS_NODE, 1)
+#define FC_MS5611_ENDPOINT PCAN_ENDPOINT_ID(FC_GNSS_NODE, 2)
+
+// Servo nodes
+#define FC_SERVO_SEPARATION PCAN_NODE_ID(FC_SERVO, 0)
+
+// Servo endpoints
+// (none)
+
+// Solenoid nodes
+#define FC_SOLENOID_SEPARATION_FILLING PCAN_NODE_ID(FC_SOLENOID, 0)
+#define FC_SOLENOID_FLOTATION_FILLING  PCAN_NODE_ID(FC_SOLENOID, 1)
+#define FC_SOLENOID_FLOTATION          PCAN_NODE_ID(FC_SOLENOID, 2)
+
+// Solenoid endpoints
+// (none)
+
+// Pressure nodes
+#define FC_PRESSURE_1 PCAN_NODE_ID(FC_PRESSURE, 0)
+
+// Pressure endpoints
+#define FC_PRESSURE_SEPARATION_ENDPOINT PCAN_ENDPOINT_ID(FC_PRESSURE_1, 0)
+#define FC_PRESSURE_FLOTATION_ENDPOINT PCAN_ENDPOINT_ID(FC_PRESSURE_1, 1)
+
+// Thermocouple nodes
+#define FC_THERMOCOUPLE_1 PCAN_NODE_ID(FC_THERMOCOUPLE, 0)
+
+// Thermocouplde endpoints
+#define FC_THERMOCOUPLE_SEPARATION      PCAN_ENDPOINT_ID(FC_THERMOCOUPLE_1, 0)
+#define FC_THERMOCOUPLE_FLOTATION       PCAN_ENDPOINT_ID(FC_THERMOCOUPLE_1, 1)
+
+// Battery nodes
+#define FC_BATTERY_NODE PCAN_NODE_ID(FC_BATTERY, 0)
+
+// Battery endpoints
+#define FC_BMS_CHARGER_ENDPOINT PCAN_ENDPOINT_ID(FC_BATTERY_NODE, 0)
+#define FC_BMS_BATTERYPACK_ENDPOINT PCAN_ENDPOINT_ID(FC_BATTERY_NODE, 1)
+#define FC_BMS_RAILDATA_ENDPOINT PCAN_ENDPOINT_ID(FC_BATTERY_NODE, 2)
+#define FC_BMS_POINT_ENDPOINT PCAN_ENDPOINT_ID(FC_BATTERY_NODE, 3)
+
+// Camera nodes
+#define FC_CAMERA_0    PCAN_NODE_ID(FC_CAMERA, 0)
+#define FC_CAMERA_1    PCAN_NODE_ID(FC_CAMERA, 1)
+#define FC_CAMERA_2    PCAN_NODE_ID(FC_CAMERA, 2)
+#define FC_LIVE_CAMERA PCAN_NODE_ID(FC_CAMERA, 3)
+
+// Camera endpoints
+// (none)
+
+#endif // __FC_IDS_H__
