@@ -1,5 +1,4 @@
 # Fossekall Flight Computer
-![Alt text](https://media1.tenor.com/m/LQlcArARb6kAAAAC/rainbow-dash-silly.gif)
 
 ## data organization
 Groundstation is all the datatypes which configured correctly
